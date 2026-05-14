@@ -19,7 +19,7 @@ echo "DB: $DATABASE_SYNC_URL"
 echo "Waiting for database..."
 python -c "
 import time, sys
-for i in range(30):
+for i in range(60):
     try:
         import psycopg2, os
         url = os.environ['DATABASE_SYNC_URL']
@@ -28,8 +28,8 @@ for i in range(30):
         print('Database ready!')
         sys.exit(0)
     except Exception as e:
-        print(f'  attempt {i+1}/30: {e}')
-        time.sleep(2)
+        print(f'  attempt {i+1}/60: {e}')
+        time.sleep(1)
 sys.exit(1)
 "
 
