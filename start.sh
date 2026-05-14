@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 echo "=== VOXAORA Backend Startup ==="
 
@@ -13,7 +12,7 @@ fi
 export DATABASE_SYNC_URL="${DATABASE_URL/+asyncpg/}"
 export DATABASE_SYNC_URL="${DATABASE_SYNC_URL/postgresql+asyncpg:\/\//postgresql://}"
 
-echo "DB: $DATABASE_SYNC_URL"
+echo "DB URL ready"
 
 # Wait for PostgreSQL
 echo "Waiting for database..."
@@ -30,16 +29,22 @@ for i in range(60):
     except Exception as e:
         print(f'  attempt {i+1}/60: {e}')
         time.sleep(1)
+print('DB never became ready!')
 sys.exit(1)
 "
 
+if [ $? -ne 0 ]; then
+  echo "ERROR: Database not available, exiting."
+  exit 1
+fi
+
 # Run migrations
 echo "Running Alembic migrations..."
-alembic upgrade heads
+alembic upgrade heads || echo "WARNING: Alembic migration had issues (continuing anyway)"
 
 # Create demo accounts
 echo "Seeding demo accounts..."
-python create_demo_accounts.py
+python create_demo_accounts.py || echo "WARNING: Demo seed had issues (continuing anyway)"
 
 echo "Starting uvicorn on port ${PORT:-8000}..."
 exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"

@@ -6,8 +6,11 @@ from typing import List
 class Settings(BaseSettings):
     APP_NAME: str = "VOXAORA"
     APP_ENV: str = "development"
+    ENVIRONMENT: str = "development"
     APP_SECRET_KEY: str = "dev-secret-change-in-production"
+    SECRET_KEY: str = ""
     APP_ALGORITHM: str = "HS256"
+    ALGORITHM: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
@@ -40,13 +43,17 @@ class Settings(BaseSettings):
     DEFAULT_CURRENCY: str = "SAR"
     DEFAULT_LANGUAGE: str = "ar"
 
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:3003,http://localhost:3001"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:3003,https://voxaora-frontend.vercel.app,https://voxaora-frontend-visiss-projects.vercel.app"
 
     RATE_LIMIT_REQUESTS: int = 100
     RATE_LIMIT_WINDOW: int = 60
 
     DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
+
+    @property
+    def effective_secret_key(self) -> str:
+        return self.SECRET_KEY or self.APP_SECRET_KEY
 
     @property
     def allowed_origins_list(self) -> List[str]:
